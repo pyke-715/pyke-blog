@@ -1,0 +1,75 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { site } from '../config/site';
+import { getPublishedPosts, postHref } from '../lib/posts';
+import { summarizeCategories, summarizeTags, tagHref } from '../lib/taxonomy';
+
+/**
+ * L1 临时自检页：验证内容层能读、能筛、能排序。
+ * L2 页面骨架完成后删除。
+ */
+const posts = await getPublishedPosts();
+const categories = summarizeCategories(posts);
+const tags = summarizeTags(posts);
+---
+
+<BaseLayout title={`L1 内容层自检 · ${site.name}`} description="临时调试页">
+  <main>
+    <h1>L1 内容层自检</h1>
+    <p>
+      文章 {posts.length} 篇 / 分类 {categories.length} 个 / 标签 {tags.length} 个
+    </p>
+
+    <section>
+      <h2>已发布文章（按时间倒序）</h2>
+      <ol>
+        {
+          posts.map((post) => (
+            <li>
+              <a href={postHref(post)}>{post.data.title}</a>
+              {' — '}
+              <span>{post.data.category}</span>
+              {' / '}
+              <span>{post.data.tags.join('、')}</span>
+              {' / '}
+              <time datetime={post.data.pubDate.toISOString()}>
+                {post.data.pubDate.toISOString().slice(0, 10)}
+              </time>
+            </li>
+          ))
+        }
+      </ol>
+    </section>
+
+    <section>
+      <h2>分类</h2>
+      <ul>
+        {
+          categories.map((category) => (
+            <li>
+              {category.name}（{category.count}）
+            </li>
+          ))
+        }
+      </ul>
+    </section>
+
+    <section>
+      <h2>标签</h2>
+      <ul>
+        {
+          tags.map((tag) => (
+            <li>
+              <a href={tagHref(tag.slug)}>{tag.name}</a>
+              {' → /tag/'}
+              {tag.slug}
+              {'（'}
+              {tag.count}
+              {'）'}
+            </li>
+          ))
+        }
+      </ul>
+    </section>
+  </main>
+</BaseLayout>
