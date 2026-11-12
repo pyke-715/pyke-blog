@@ -1,0 +1,36 @@
+---
+import { commentsProviderId } from '../config/comments';
+import { resolveCommentsProvider } from '../lib/comments';
+
+interface Props {
+  slug: string;
+}
+
+const { slug } = Astro.props;
+const provider = resolveCommentsProvider(commentsProviderId);
+---
+
+{
+  provider.enabled ? (
+    <section data-comments data-slug={slug} data-provider={provider.id}>
+      <h2>评论</h2>
+      <div data-comments-mount />
+    </section>
+  ) : null
+}
+
+<script>
+  import { resolveCommentsProvider } from '../lib/comments';
+
+  const root = document.querySelector<HTMLElement>('[data-comments]');
+
+  if (root) {
+    const container = root.querySelector<HTMLElement>('[data-comments-mount]');
+    const provider = resolveCommentsProvider(root.dataset.provider ?? 'none');
+    const slug = root.dataset.slug ?? '';
+
+    if (container && provider.enabled) {
+      void provider.mount({ slug, container });
+    }
+  }
+</script>

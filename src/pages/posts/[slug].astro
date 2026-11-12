@@ -5,6 +5,7 @@ import { site } from '../../config/site';
 import { tagHref, tagLabel, toTagSlug, type Post } from '../../lib/taxonomy';
 import { formatDate, toISODate } from '../../lib/date';
 import ViewCounter from '../../components/ViewCounter.astro';
+import Comments from '../../components/Comments.astro';
 
 export async function getStaticPaths() {
   const posts = await getCollection('posts', ({ data }) => !data.draft);
@@ -44,6 +45,7 @@ const { Content } = await render(post);
       </p>
     </header>
     <Content />
+    <Comments slug={post.id} />
     <footer>
       <p><a href="/">← 返回首页</a></p>
     </footer>
