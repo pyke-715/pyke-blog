@@ -1,0 +1,39 @@
+---
+import { viewsProviderId } from '../config/views';
+
+interface Props {
+  slug: string;
+  /** increment：文章页，访问即 +1；read：列表页，只读不计数 */
+  mode?: 'increment' | 'read';
+}
+
+const { slug, mode = 'increment' } = Astro.props;
+---
+
+<span data-views data-slug={slug} data-provider={viewsProviderId} data-mode={mode}>
+  阅读 <span data-views-count>—</span>
+</span>
+
+<script>
+  import { resolveViewsProvider } from '../lib/views';
+
+  const nodes = document.querySelectorAll<HTMLElement>('[data-views]');
+
+  for (const node of nodes) {
+    const slug = node.dataset.slug;
+    if (!slug) continue;
+
+    const provider = resolveViewsProvider(node.dataset.provider ?? 'local');
+    const target = node.querySelector<HTMLElement>('[data-views-count]');
+    const action =
+      node.dataset.mode === 'read' ? provider.get(slug) : provider.increment(slug);
+
+    action
+      .then((count) => {
+        if (target) target.textContent = String(count);
+      })
+      .catch(() => {
+        if (target) target.textContent = '—';
+      });
+  }
+</script>

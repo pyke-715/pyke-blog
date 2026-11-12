@@ -21,3 +21,6 @@ pnpm-debug.log*
 .idea/
 .DS_Store
 Thumbs.db
+
+# 本地文档（不入库）
+任务计划分层.md

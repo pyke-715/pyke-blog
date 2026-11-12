@@ -4,6 +4,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 import { site } from '../../config/site';
 import { tagHref, tagLabel, toTagSlug, type Post } from '../../lib/taxonomy';
 import { formatDate, toISODate } from '../../lib/date';
+import ViewCounter from '../../components/ViewCounter.astro';
 
 export async function getStaticPaths() {
   const posts = await getCollection('posts', ({ data }) => !data.draft);
@@ -38,6 +39,8 @@ const { Content } = await render(post);
           </Fragment>
         ))}
         {post.data.updatedDate ? <Fragment>{' · '}<span>更新于 {formatDate(post.data.updatedDate)}</span></Fragment> : null}
+        {' · '}
+        <ViewCounter slug={post.id} />
       </p>
     </header>
     <Content />

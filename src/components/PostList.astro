@@ -2,12 +2,15 @@
 import { postHref } from '../lib/posts';
 import { tagHref, tagLabel, toTagSlug, type Post } from '../lib/taxonomy';
 import { formatDate, toISODate } from '../lib/date';
+import ViewCounter from './ViewCounter.astro';
 
 interface Props {
   posts: Post[];
+  /** 列表里是否显示阅读量（只读，不计数） */
+  showViews?: boolean;
 }
 
-const { posts } = Astro.props;
+const { posts, showViews = false } = Astro.props;
 ---
 
 <ul>
@@ -29,6 +32,12 @@ const { posts } = Astro.props;
                 <a href={tagHref(toTagSlug(tag))}>{tagLabel(tag)}</a>
               </Fragment>
             ))}
+            {showViews ? (
+              <Fragment>
+                {' · '}
+                <ViewCounter slug={post.id} mode="read" />
+              </Fragment>
+            ) : null}
           </p>
           {post.data.description ? <p>{post.data.description}</p> : null}
         </article>
