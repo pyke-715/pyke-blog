@@ -1,11 +1,14 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
+import PostList from '../components/PostList.astro';
 import { site } from '../config/site';
+import { getPublishedPosts } from '../lib/posts';
+
+const posts = await getPublishedPosts();
 ---
 
 <BaseLayout title={site.name} description={site.description}>
-  <main>
-    <h1>{site.name}</h1>
-    <p>L0 地基就绪。</p>
-  </main>
+  <h1>最新文章</h1>
+  <p>共 {posts.length} 篇</p>
+  <PostList posts={posts} />
 </BaseLayout>

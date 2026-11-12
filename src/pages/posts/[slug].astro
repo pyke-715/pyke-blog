@@ -1,0 +1,43 @@
+---
+import { getCollection, render } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { site } from '../../config/site';
+import { tagHref, tagLabel, toTagSlug, type Post } from '../../lib/taxonomy';
+import { formatDate, toISODate } from '../../lib/date';
+
+export async function getStaticPaths() {
+  const posts = await getCollection('posts', ({ data }) => !data.draft);
+
+  return posts.map((post) => ({
+    params: { slug: post.id },
+    props: { post },
+  }));
+}
+
+interface Props {
+  post: Post;
+}
+
+const { post } = Astro.props;
+const { Content } = await render(post);
+---
+
+<BaseLayout title={`${post.data.title} · ${site.name}`} description={post.data.description}>
+  <article>
+    <header>
+      <h1>{post.data.title}</h1>
+      <p>
+        <time datetime={toISODate(post.data.pubDate)}>{formatDate(post.data.pubDate)}</time>
+        <span>{post.data.category}</span>
+        {post.data.tags.map((tag) => (
+          <a href={tagHref(toTagSlug(tag))}>{tagLabel(tag)}</a>
+        ))}
+        {post.data.updatedDate ? <span>更新于 {formatDate(post.data.updatedDate)}</span> : null}
+      </p>
+    </header>
+    <Content />
+    <footer>
+      <p><a href="/">← 返回首页</a></p>
+    </footer>
+  </article>
+</BaseLayout>

@@ -1,0 +1,15 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { site } from '../config/site';
+---
+
+<BaseLayout title={`关于 · ${site.name}`} description={`关于 ${site.author}`}>
+  <h1>关于</h1>
+  <p>你好，我是 {site.author}。这里记录技术、问题与日常。</p>
+
+  <h2>在做什么</h2>
+  <p>占位：这里以后写正在做的事。</p>
+
+  <h2>联系我</h2>
+  <p>占位：邮箱、GitHub 等联系方式。</p>
+</BaseLayout>

@@ -1,0 +1,33 @@
+---
+import { postHref } from '../lib/posts';
+import { tagHref, tagLabel, toTagSlug, type Post } from '../lib/taxonomy';
+import { formatDate, toISODate } from '../lib/date';
+
+interface Props {
+  posts: Post[];
+}
+
+const { posts } = Astro.props;
+---
+
+<ul>
+  {
+    posts.map((post) => (
+      <li>
+        <article>
+          <h2>
+            <a href={postHref(post)}>{post.data.title}</a>
+          </h2>
+          <p>
+            <time datetime={toISODate(post.data.pubDate)}>{formatDate(post.data.pubDate)}</time>
+            <span>{post.data.category}</span>
+            {post.data.tags.map((tag) => (
+              <a href={tagHref(toTagSlug(tag))}>{tagLabel(tag)}</a>
+            ))}
+          </p>
+          {post.data.description ? <p>{post.data.description}</p> : null}
+        </article>
+      </li>
+    ))
+  }
+</ul>

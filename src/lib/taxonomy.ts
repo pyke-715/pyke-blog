@@ -76,6 +76,11 @@ export function tagHref(slug: string): string {
   return `/tag/${slug}`;
 }
 
+/** 页面展示用的标签文案：# + 原文（slug 只用于 URL） */
+export function tagLabel(name: string): string {
+  return `#${name}`;
+}
+
 export interface TagSummary {
   /** 显示用原文 */
   name: string;

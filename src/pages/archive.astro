@@ -1,0 +1,39 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { site } from '../config/site';
+import { getPublishedPosts, postHref } from '../lib/posts';
+import { formatDate, getYear, toISODate } from '../lib/date';
+
+const posts = await getPublishedPosts();
+
+const byYear = new Map<string, typeof posts>();
+for (const post of posts) {
+  const year = getYear(post.data.pubDate);
+  const list = byYear.get(year) ?? [];
+  list.push(post);
+  byYear.set(year, list);
+}
+---
+
+<BaseLayout title={`归档 · ${site.name}`} description="按时间归档的全部文章">
+  <h1>归档</h1>
+  <p>共 {posts.length} 篇</p>
+  {
+    [...byYear.entries()].map(([year, list]) => (
+      <section>
+        <h2>{year} 年</h2>
+        <ul>
+          {list.map((post) => (
+            <li>
+              <time datetime={toISODate(post.data.pubDate)}>{formatDate(post.data.pubDate)}</time>
+              {' '}
+              <a href={postHref(post)}>{post.data.title}</a>
+              {' '}
+              <span>{post.data.category}</span>
+            </li>
+          ))}
+        </ul>
+      </section>
+    ))
+  }
+</BaseLayout>

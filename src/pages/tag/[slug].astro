@@ -1,0 +1,36 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PostList from '../../components/PostList.astro';
+import { site } from '../../config/site';
+import { getPublishedPosts } from '../../lib/posts';
+import { summarizeTags, tagLabel, toTagSlug, type Post } from '../../lib/taxonomy';
+
+export async function getStaticPaths() {
+  const posts = await getPublishedPosts();
+
+  return summarizeTags(posts).map((tag) => ({
+    params: { slug: tag.slug },
+    props: {
+      name: tag.name,
+      posts: posts.filter((post) => post.data.tags.some((t) => toTagSlug(t) === tag.slug)),
+    },
+  }));
+}
+
+interface Props {
+  name: string;
+  posts: Post[];
+}
+
+const { name, posts } = Astro.props;
+---
+
+<BaseLayout
+  title={`${tagLabel(name)} · ${site.name}`}
+  description={`标签 ${tagLabel(name)} 下的全部文章`}
+>
+  <h1>{tagLabel(name)}</h1>
+  <p>共 {posts.length} 篇</p>
+  <PostList posts={posts} />
+  <p><a href="/">← 返回首页</a></p>
+</BaseLayout>

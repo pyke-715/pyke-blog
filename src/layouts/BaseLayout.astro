@@ -1,12 +1,18 @@
 ---
 import '../styles/global.css';
+import { site } from '../config/site';
 
 interface Props {
   title: string;
   description?: string;
 }
 
-const { title, description = '' } = Astro.props;
+const { title, description = site.description } = Astro.props;
+const pathname = Astro.url.pathname;
+
+function isActive(href: string): boolean {
+  return href === '/' ? pathname === '/' : pathname.startsWith(href);
+}
 ---
 
 <!doctype html>
@@ -19,6 +25,28 @@ const { title, description = '' } = Astro.props;
     <title>{title}</title>
   </head>
   <body>
-    <slot />
+    <a href="#main">跳到正文</a>
+    <header>
+      <p><a href="/">{site.name}</a></p>
+      <nav aria-label="主导航">
+        <ul>
+          {
+            site.nav.map((item) => (
+              <li>
+                <a href={item.href} aria-current={isActive(item.href) ? 'page' : undefined}>
+                  {item.label}
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+      </nav>
+    </header>
+    <main id="main">
+      <slot />
+    </main>
+    <footer>
+      <p>© {new Date().getFullYear()} {site.name}</p>
+    </footer>
   </body>
 </html>
