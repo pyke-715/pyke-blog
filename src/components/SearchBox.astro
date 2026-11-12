@@ -1,0 +1,152 @@
+---
+/**
+ * 搜索岛：构建期索引 + 纯前端匹配，不依赖任何搜索服务。
+ */
+---
+
+<div data-search>
+  <form role="search" data-search-form>
+    <label for="search-input">关键词</label>
+    <input
+      id="search-input"
+      name="q"
+      type="search"
+      placeholder="搜索标题或标签"
+      autocomplete="off"
+      spellcheck="false"
+    />
+    <label>
+      <input type="checkbox" data-search-exact />
+      精确匹配
+    </label>
+    <button type="submit">搜索</button>
+  </form>
+
+  <p data-search-status aria-live="polite"></p>
+  <ul data-search-results></ul>
+
+  <noscript>
+    <p>搜索依赖 JavaScript；不开启也能直接浏览首页与归档。</p>
+  </noscript>
+</div>
+
+<script>
+  import { search, type SearchItem } from '../lib/search';
+
+  const root = document.querySelector<HTMLElement>('[data-search]');
+
+  if (root) {
+    const form = root.querySelector<HTMLFormElement>('[data-search-form]');
+    const input = root.querySelector<HTMLInputElement>('#search-input');
+    const exact = root.querySelector<HTMLInputElement>('[data-search-exact]');
+    const status = root.querySelector<HTMLElement>('[data-search-status]');
+    const list = root.querySelector<HTMLUListElement>('[data-search-results]');
+
+    let items: SearchItem[] | null = null;
+    let loading: Promise<SearchItem[]> | null = null;
+
+    const label = (item: SearchItem): string => {
+      const tags = item.tags.map((tag) => `#${tag}`).join(' ');
+      return ` — ${item.date} · ${item.category} · ${tags}`;
+    };
+
+    async function load(): Promise<SearchItem[]> {
+      if (items) return items;
+
+      loading ??= fetch('/search-index.json')
+        .then((response) => response.json() as Promise<SearchItem[]>)
+        .then((data) => {
+          items = data;
+          return data;
+        })
+        .catch(() => {
+          if (status) status.textContent = '搜索索引加载失败，请刷新重试';
+          return [];
+        });
+
+      return loading;
+    }
+
+    function render(results: SearchItem[], query: string): void {
+      if (!list || !status) return;
+      list.replaceChildren();
+
+      if (!query.trim()) {
+        status.textContent = '输入标题或标签关键词开始搜索';
+        return;
+      }
+
+      status.textContent = results.length ? `找到 ${results.length} 篇` : '没有匹配的文章';
+
+      for (const item of results) {
+        const row = document.createElement('li');
+        const link = document.createElement('a');
+        link.href = item.url;
+        link.textContent = item.title;
+
+        const meta = document.createElement('span');
+        meta.textContent = label(item);
+
+        row.append(link, meta);
+        list.append(row);
+      }
+    }
+
+    function syncUrl(query: string, isExact: boolean): void {
+      const url = new URL(window.location.href);
+      if (query) url.searchParams.set('q', query);
+      else url.searchParams.delete('q');
+      if (isExact) url.searchParams.set('exact', '1');
+      else url.searchParams.delete('exact');
+      window.history.replaceState(null, '', url);
+    }
+
+    let timer: number | undefined;
+
+    async function run(): Promise<void> {
+      if (!input || !exact) return;
+      const query = input.value;
+      const mode = exact.checked ? 'exact' : 'fuzzy';
+      const data = await load();
+      render(search(data, query, mode), query);
+      syncUrl(query, exact.checked);
+    }
+
+    form?.addEventListener('submit', (event) => {
+      event.preventDefault();
+      void run();
+    });
+
+    input?.addEventListener('input', () => {
+      window.clearTimeout(timer);
+      timer = window.setTimeout(() => void run(), 120);
+    });
+
+    exact?.addEventListener('change', () => void run());
+
+    const params = new URLSearchParams(window.location.search);
+    const initialQuery = params.get('q') ?? '';
+    if (input && initialQuery) input.value = initialQuery;
+    if (exact && params.get('exact') === '1') exact.checked = true;
+    void run();
+
+    document.addEventListener('keydown', (event) => {
+      const target = event.target as HTMLElement | null;
+      const isTyping =
+        target instanceof HTMLInputElement ||
+        target instanceof HTMLTextAreaElement ||
+        target instanceof HTMLSelectElement ||
+        Boolean(target?.isContentEditable);
+
+      if (event.key === '/' && !isTyping && input) {
+        event.preventDefault();
+        input.focus();
+      }
+
+      if (event.key === 'Escape' && input && document.activeElement === input) {
+        input.value = '';
+        void run();
+      }
+    });
+  }
+</script>

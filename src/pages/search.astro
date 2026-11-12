@@ -1,0 +1,10 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import SearchBox from '../components/SearchBox.astro';
+import { site } from '../config/site';
+---
+
+<BaseLayout title={`搜索 · ${site.name}`} description="按标题与标签搜索文章" noindex>
+  <h1>搜索</h1>
+  <SearchBox />
+</BaseLayout>

@@ -16,9 +16,11 @@ import ThemeToggle from '../components/ThemeToggle.astro';
 interface Props {
   title: string;
   description?: string;
+  /** 不想被搜索引擎收录的页面（如搜索结果页）传 true */
+  noindex?: boolean;
 }
 
-const { title, description = site.description } = Astro.props;
+const { title, description = site.description, noindex = false } = Astro.props;
 const pathname = Astro.url.pathname;
 
 function isActive(href: string): boolean {
@@ -48,6 +50,7 @@ const themeConfigJson = JSON.stringify(themeConfig).replace(/</g, '\\u003c');
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="description" content={description} />
+    {noindex ? <meta name="robots" content="noindex" /> : null}
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <title>{title}</title>
     <ThemeStyles />
