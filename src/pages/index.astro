@@ -1,0 +1,11 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { site } from '../config/site';
+---
+
+<BaseLayout title={site.name} description={site.description}>
+  <main>
+    <h1>{site.name}</h1>
+    <p>L0 地基就绪。</p>
+  </main>
+</BaseLayout>
