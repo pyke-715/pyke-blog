@@ -18,9 +18,26 @@ interface Props {
   description?: string;
   /** 不想被搜索引擎收录的页面（如搜索结果页）传 true */
   noindex?: boolean;
+  /** og:type，文章页传 article */
+  type?: 'website' | 'article';
+  /** 社交分享图，默认 /og-default.png */
+  image?: string;
+  /** 结构化数据（BlogPosting 等），传对象即可 */
+  jsonLd?: Record<string, unknown>;
 }
 
-const { title, description = site.description, noindex = false } = Astro.props;
+const {
+  title,
+  description = site.description,
+  noindex = false,
+  type = 'website',
+  image = '/og-default.png',
+  jsonLd,
+} = Astro.props;
+
+const canonical = Astro.site ? new URL(Astro.url.pathname, Astro.site) : undefined;
+const ogImage = Astro.site ? new URL(image, Astro.site) : undefined;
+const jsonLdHtml = jsonLd ? JSON.stringify(jsonLd).replace(/</g, '\\u003c') : undefined;
 const pathname = Astro.url.pathname;
 
 function isActive(href: string): boolean {
@@ -51,6 +68,22 @@ const themeConfigJson = JSON.stringify(themeConfig).replace(/</g, '\\u003c');
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="description" content={description} />
     {noindex ? <meta name="robots" content="noindex" /> : null}
+    {canonical ? <link rel="canonical" href={canonical} /> : null}
+    <link rel="alternate" type="application/rss+xml" title={site.name} href="/rss.xml" />
+
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:type" content={type} />
+    <meta property="og:site_name" content={site.name} />
+    {canonical ? <meta property="og:url" content={canonical} /> : null}
+    {ogImage ? <meta property="og:image" content={ogImage} /> : null}
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    {ogImage ? <meta name="twitter:image" content={ogImage} /> : null}
+
+    {jsonLdHtml ? <script type="application/ld+json" set:html={jsonLdHtml} /> : null}
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <title>{title}</title>
     <ThemeStyles />

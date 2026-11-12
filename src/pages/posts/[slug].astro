@@ -22,9 +22,30 @@ interface Props {
 
 const { post } = Astro.props;
 const { Content } = await render(post);
+
+const siteUrl = Astro.site ?? new URL('https://example.com');
+const postUrl = new URL(`/posts/${post.id}`, siteUrl).toString();
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'BlogPosting',
+  headline: post.data.title,
+  description: post.data.description ?? '',
+  datePublished: post.data.pubDate.toISOString(),
+  dateModified: (post.data.updatedDate ?? post.data.pubDate).toISOString(),
+  author: { '@type': 'Person', name: site.author },
+  mainEntityOfPage: postUrl,
+  url: postUrl,
+  image: new URL('/og-default.png', siteUrl).toString(),
+  keywords: post.data.tags.join(', '),
+};
 ---
 
-<BaseLayout title={`${post.data.title} · ${site.name}`} description={post.data.description}>
+<BaseLayout
+  title={`${post.data.title} · ${site.name}`}
+  description={post.data.description}
+  type="article"
+  jsonLd={jsonLd}
+>
   <article>
     <header>
       <h1>{post.data.title}</h1>
