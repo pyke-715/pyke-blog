@@ -1,6 +1,17 @@
 ---
+import '../styles/tokens.css';
 import '../styles/global.css';
 import { site } from '../config/site';
+import {
+  DARK_THEME_ID,
+  DEFAULT_THEME_ID,
+  LIGHT_THEME_ID,
+  STORAGE_KEY,
+  SYSTEM_PREFERENCE,
+  themes,
+} from '../config/themes';
+import ThemeStyles from '../components/ThemeStyles.astro';
+import ThemeToggle from '../components/ThemeToggle.astro';
 
 interface Props {
   title: string;
@@ -13,6 +24,22 @@ const pathname = Astro.url.pathname;
 function isActive(href: string): boolean {
   return href === '/' ? pathname === '/' : pathname.startsWith(href);
 }
+
+/** 注入给客户端（防闪脚本与切换按钮共用），避免在两处重复写主题清单 */
+const themeConfig = {
+  storageKey: STORAGE_KEY,
+  defaultId: DEFAULT_THEME_ID,
+  systemId: SYSTEM_PREFERENCE,
+  lightId: LIGHT_THEME_ID,
+  darkId: DARK_THEME_ID,
+  order: [...themes.map((theme) => theme.id), SYSTEM_PREFERENCE],
+  labels: {
+    ...Object.fromEntries(themes.map((theme) => [theme.id, theme.label])),
+    [SYSTEM_PREFERENCE]: '跟随系统',
+  },
+};
+
+const themeConfigJson = JSON.stringify(themeConfig).replace(/</g, '\\u003c');
 ---
 
 <!doctype html>
@@ -23,6 +50,51 @@ function isActive(href: string): boolean {
     <meta name="description" content={description} />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <title>{title}</title>
+    <ThemeStyles />
+    <script type="application/json" id="theme-config" set:html={themeConfigJson}></script>
+    <script is:inline>
+      (() => {
+        const node = document.getElementById('theme-config');
+        let config = {};
+        try {
+          config = JSON.parse((node && node.textContent) || '{}');
+        } catch {
+          config = {};
+        }
+
+        const storageKey =
+          typeof config.storageKey === 'string' ? config.storageKey : 'theme-preference';
+        const systemId = typeof config.systemId === 'string' ? config.systemId : 'system';
+        const lightId = typeof config.lightId === 'string' ? config.lightId : 'light';
+        const darkId = typeof config.darkId === 'string' ? config.darkId : 'dark';
+        const order =
+          Array.isArray(config.order) && config.order.length
+            ? config.order
+            : [lightId, darkId, systemId];
+        const defaultId =
+          typeof config.defaultId === 'string' && order.indexOf(config.defaultId) !== -1
+            ? config.defaultId
+            : order[0];
+
+        let preference = defaultId;
+        try {
+          const saved = window.localStorage.getItem(storageKey);
+          if (saved && (saved === systemId || order.indexOf(saved) !== -1)) preference = saved;
+        } catch {
+          preference = defaultId;
+        }
+
+        const resolved =
+          preference === systemId
+            ? window.matchMedia('(prefers-color-scheme: dark)').matches
+              ? darkId
+              : lightId
+            : preference;
+
+        document.documentElement.dataset.theme = resolved;
+        document.documentElement.dataset.themePreference = preference;
+      })();
+    </script>
   </head>
   <body>
     <a href="#main">跳到正文</a>
@@ -41,6 +113,7 @@ function isActive(href: string): boolean {
           }
         </ul>
       </nav>
+      <ThemeToggle />
     </header>
     <main id="main">
       <slot />

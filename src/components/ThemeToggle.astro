@@ -1,0 +1,78 @@
+---
+/**
+ * 主题切换按钮：单按钮三态循环（亮 → 暗 → 跟随系统 → 亮）。
+ * 循环顺序、文案、存储键都来自 BaseLayout 注入的 #theme-config，组件里不重复定义。
+ */
+---
+
+<button type="button" data-theme-toggle>主题</button>
+
+<script>
+  interface ThemeConfig {
+    storageKey?: string;
+    defaultId?: string;
+    systemId?: string;
+    lightId?: string;
+    darkId?: string;
+    order?: string[];
+    labels?: Record<string, string>;
+  }
+
+  const configNode = document.getElementById('theme-config');
+  let config: ThemeConfig = {};
+  try {
+    config = JSON.parse(configNode?.textContent ?? '{}') as ThemeConfig;
+  } catch {
+    config = {};
+  }
+
+  const storageKey = config.storageKey ?? 'theme-preference';
+  const systemId = config.systemId ?? 'system';
+  const lightId = config.lightId ?? 'light';
+  const darkId = config.darkId ?? 'dark';
+  const order = config.order?.length ? config.order : [lightId, darkId, systemId];
+  const labels = config.labels ?? {};
+  const defaultId = config.defaultId && order.includes(config.defaultId) ? config.defaultId : order[0];
+
+  const root = document.documentElement;
+  const button = document.querySelector<HTMLButtonElement>('[data-theme-toggle]');
+  const media = window.matchMedia('(prefers-color-scheme: dark)');
+
+  const labelOf = (preference: string): string => labels[preference] ?? preference;
+  const resolve = (preference: string): string =>
+    preference === systemId ? (media.matches ? darkId : lightId) : preference;
+  const nextOf = (preference: string): string => {
+    const index = order.indexOf(preference);
+    return order[(index + 1) % order.length] ?? order[0];
+  };
+
+  let preference = root.dataset.themePreference ?? defaultId;
+  if (preference !== systemId && !order.includes(preference)) preference = defaultId;
+
+  function render(): void {
+    root.dataset.theme = resolve(preference);
+    root.dataset.themePreference = preference;
+
+    if (!button) return;
+    const current = labelOf(preference);
+    const next = labelOf(nextOf(preference));
+    button.textContent = `主题：${current}`;
+    button.setAttribute('aria-label', `当前${current}，点击切换到${next}`);
+  }
+
+  render();
+
+  button?.addEventListener('click', () => {
+    preference = nextOf(preference);
+    try {
+      window.localStorage.setItem(storageKey, preference);
+    } catch {
+      // 隐私模式下写入失败时仍允许本次会话内切换
+    }
+    render();
+  });
+
+  media.addEventListener('change', () => {
+    if (preference === systemId) render();
+  });
+</script>

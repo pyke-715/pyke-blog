@@ -1,4 +1,4 @@
-/* L0 只放底座规则；视觉设计（颜色、间距、排版尺度）在 L9 处理 */
+/* L3：只做 token 消费，视觉设计（尺度、留白、字体大小）在 L9 处理 */
 *,
 *::before,
 *::after {
@@ -11,15 +11,10 @@ html {
 
 body {
   margin: 0;
-  font-family:
-    system-ui,
-    -apple-system,
-    'Segoe UI',
-    Roboto,
-    'Helvetica Neue',
-    'Noto Sans SC',
-    sans-serif;
+  font-family: var(--font-sans);
   line-height: 1.6;
+  background-color: var(--color-bg);
+  color: var(--color-fg);
 }
 
 img,
@@ -28,4 +23,17 @@ svg,
 video {
   display: block;
   max-width: 100%;
+}
+
+a {
+  color: var(--color-accent);
+}
+
+:where(a, button, select):focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+hr {
+  border-color: var(--color-border);
 }

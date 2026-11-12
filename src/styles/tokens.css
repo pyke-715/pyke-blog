@@ -1,0 +1,13 @@
+/**
+ * 与主题无关的常量：字体、圆角、内容宽度。
+ * 颜色 token 在 src/config/themes.ts，视觉尺度在 L9 扩展。
+ */
+:root {
+  --font-sans:
+    system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', 'Noto Sans SC', sans-serif;
+  --font-mono:
+    ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', 'Courier New', monospace;
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --content-width: 46rem;
+}

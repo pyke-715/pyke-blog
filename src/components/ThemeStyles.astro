@@ -1,0 +1,33 @@
+---
+import { DEFAULT_THEME_ID, TOKEN_KEYS, themes } from '../config/themes';
+
+/**
+ * 由注册表生成全部主题 CSS：
+ * - :root 默认主题（禁用 JS 时的兜底）
+ * - [data-theme="x"] 每个主题
+ * - @media (prefers-color-scheme: dark) 无 JS 时的系统跟随
+ */
+const declarations = (tokens: Record<string, string>, indent = '  '): string =>
+  TOKEN_KEYS.map((key) => `${indent}${key}: ${tokens[key]};`).join('\n');
+
+const defaultTheme = themes.find((theme) => theme.id === DEFAULT_THEME_ID) ?? themes[0];
+const darkTheme = themes.find((theme) => theme.colorScheme === 'dark');
+
+const blocks: string[] = [
+  `:root {\n  color-scheme: light;\n${declarations(defaultTheme.tokens)}\n}`,
+  ...themes.map(
+    (theme) =>
+      `[data-theme="${theme.id}"] {\n  color-scheme: ${theme.colorScheme};\n${declarations(theme.tokens)}\n}`,
+  ),
+];
+
+if (darkTheme) {
+  blocks.push(
+    `@media (prefers-color-scheme: dark) {\n  :root:not([data-theme]) {\n    color-scheme: dark;\n${declarations(darkTheme.tokens, '    ')}\n  }\n}`,
+  );
+}
+
+const css = blocks.join('\n\n');
+---
+
+<style is:inline set:html={css}></style>
