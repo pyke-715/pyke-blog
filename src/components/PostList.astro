@@ -20,9 +20,14 @@ const { posts } = Astro.props;
           </h2>
           <p>
             <time datetime={toISODate(post.data.pubDate)}>{formatDate(post.data.pubDate)}</time>
+            {' · '}
             <span>{post.data.category}</span>
-            {post.data.tags.map((tag) => (
-              <a href={tagHref(toTagSlug(tag))}>{tagLabel(tag)}</a>
+            {' · '}
+            {post.data.tags.map((tag, index) => (
+              <Fragment>
+                {index > 0 ? ' ' : ''}
+                <a href={tagHref(toTagSlug(tag))}>{tagLabel(tag)}</a>
+              </Fragment>
             ))}
           </p>
           {post.data.description ? <p>{post.data.description}</p> : null}

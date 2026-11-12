@@ -10,4 +10,8 @@
   --radius-sm: 4px;
   --radius-md: 8px;
   --content-width: 46rem;
+
+  /* 首页背景图：遮罩透明度与遮罩上的文字色，保证任何图都读得清 */
+  --hero-overlay: rgba(0, 0, 0, 0.45);
+  --hero-fg: #ffffff;
 }

@@ -1,0 +1,27 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { site } from '../config/site';
+import { friends } from '../data/friends';
+---
+
+<BaseLayout title={`友链 · ${site.name}`} description="友情链接">
+  <h1>友链</h1>
+  <p>共 {friends.length} 个</p>
+
+  {
+    friends.length === 0 ? (
+      <p>还没有添加友链，去 src/data/friends.ts 里加吧。</p>
+    ) : (
+      <ul>
+        {friends.map((friend) => (
+          <li>
+            <a href={friend.url} target="_blank" rel="noopener noreferrer">
+              {friend.name}
+            </a>
+            {friend.description ? <span>{' — '}{friend.description}</span> : null}
+          </li>
+        ))}
+      </ul>
+    )
+  }
+</BaseLayout>

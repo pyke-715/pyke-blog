@@ -28,11 +28,16 @@ const { Content } = await render(post);
       <h1>{post.data.title}</h1>
       <p>
         <time datetime={toISODate(post.data.pubDate)}>{formatDate(post.data.pubDate)}</time>
+        {' · '}
         <span>{post.data.category}</span>
-        {post.data.tags.map((tag) => (
-          <a href={tagHref(toTagSlug(tag))}>{tagLabel(tag)}</a>
+        {' · '}
+        {post.data.tags.map((tag, index) => (
+          <Fragment>
+            {index > 0 ? ' ' : ''}
+            <a href={tagHref(toTagSlug(tag))}>{tagLabel(tag)}</a>
+          </Fragment>
         ))}
-        {post.data.updatedDate ? <span>更新于 {formatDate(post.data.updatedDate)}</span> : null}
+        {post.data.updatedDate ? <Fragment>{' · '}<span>更新于 {formatDate(post.data.updatedDate)}</span></Fragment> : null}
       </p>
     </header>
     <Content />

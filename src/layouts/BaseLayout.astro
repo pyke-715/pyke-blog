@@ -120,6 +120,23 @@ const themeConfigJson = JSON.stringify(themeConfig).replace(/</g, '\\u003c');
     </main>
     <footer>
       <p>© {new Date().getFullYear()} {site.name}</p>
+      {
+        site.social.length > 0 ? (
+          <ul>
+            {site.social.map((link) => (
+              <li>
+                <a
+                  href={link.href}
+                  target={link.href.startsWith('http') ? '_blank' : undefined}
+                  rel={link.href.startsWith('http') ? 'me noopener noreferrer' : undefined}
+                >
+                  {link.label}
+                </a>
+              </li>
+            ))}
+          </ul>
+        ) : null
+      }
     </footer>
   </body>
 </html>
