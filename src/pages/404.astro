@@ -4,7 +4,35 @@ import { site } from '../config/site';
 ---
 
 <BaseLayout title={`页面不存在 · ${site.name}`} description="页面不存在" noindex>
-  <h1>404 · 页面不存在</h1>
-  <p>你要找的页面不在这里，可能是地址写错了，或者它已经被移动。</p>
-  <p><a href="/">返回首页</a></p>
+  <div class="not-found">
+    <h1>404</h1>
+    <p>你要找的页面不在这里，可能是地址写错了，或者它已经被移动。</p>
+    <p><a href="/">← 返回首页</a></p>
+  </div>
 </BaseLayout>
+
+<style>
+  .not-found {
+    padding: var(--space-8) 0;
+    text-align: center;
+  }
+
+  .not-found h1 {
+    font-size: var(--text-hero);
+    margin-bottom: var(--space-3);
+  }
+
+  .not-found p {
+    color: var(--color-fg-muted);
+  }
+
+  .not-found a {
+    font-family: var(--font-sans);
+    font-size: var(--text-sm);
+    text-decoration: none;
+  }
+
+  .not-found a:hover {
+    text-decoration: underline;
+  }
+</style>

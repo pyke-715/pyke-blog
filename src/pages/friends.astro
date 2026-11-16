@@ -6,22 +6,66 @@ import { friends } from '../data/friends';
 
 <BaseLayout title={`友链 · ${site.name}`} description="友情链接">
   <h1>友链</h1>
-  <p>共 {friends.length} 个</p>
+  <p class="count">共 {friends.length} 个</p>
 
   {
     friends.length === 0 ? (
       <p>还没有添加友链，去 src/data/friends.ts 里加吧。</p>
     ) : (
-      <ul>
+      <ul class="friends">
         {friends.map((friend) => (
           <li>
             <a href={friend.url} target="_blank" rel="noopener noreferrer">
               {friend.name}
             </a>
-            {friend.description ? <span>{' — '}{friend.description}</span> : null}
+            {friend.description ? <span>{friend.description}</span> : null}
           </li>
         ))}
       </ul>
     )
   }
 </BaseLayout>
+
+<style>
+  .count {
+    color: var(--color-fg-muted);
+    font-family: var(--font-sans);
+    font-size: var(--text-xs);
+    letter-spacing: 0.05em;
+    margin: 0 0 var(--space-4);
+  }
+
+  .friends {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .friends li {
+    border-top: 1px solid var(--color-border);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0 var(--space-3);
+    padding: var(--space-4) 0;
+  }
+
+  .friends li:first-child {
+    border-top: none;
+  }
+
+  .friends a {
+    color: var(--color-fg);
+    font-size: var(--text-lg);
+    text-decoration: none;
+  }
+
+  .friends a:hover {
+    color: var(--color-accent);
+  }
+
+  .friends span {
+    color: var(--color-fg-muted);
+    font-family: var(--font-sans);
+    font-size: var(--text-sm);
+  }
+</style>

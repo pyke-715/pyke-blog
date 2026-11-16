@@ -1,7 +1,9 @@
 ---
 import '../styles/tokens.css';
 import '../styles/global.css';
+import { Image } from 'astro:assets';
 import { site } from '../config/site';
+import { getBackgroundImage } from '../lib/background';
 import {
   DARK_THEME_ID,
   DEFAULT_THEME_ID,
@@ -59,6 +61,7 @@ const themeConfig = {
 };
 
 const themeConfigJson = JSON.stringify(themeConfig).replace(/</g, '\\u003c');
+const background = getBackgroundImage(site.backgroundImage);
 ---
 
 <!doctype html>
@@ -133,28 +136,38 @@ const themeConfigJson = JSON.stringify(themeConfig).replace(/</g, '\\u003c');
     </script>
   </head>
   <body>
-    <a href="#main">跳到正文</a>
-    <header>
-      <p><a href="/">{site.name}</a></p>
-      <nav aria-label="主导航">
-        <ul>
-          {
-            site.nav.map((item) => (
-              <li>
-                <a href={item.href} aria-current={isActive(item.href) ? 'page' : undefined}>
-                  {item.label}
-                </a>
-              </li>
-            ))
-          }
-        </ul>
+    {
+      background ? (
+        <div class="site-bg" aria-hidden="true">
+          <Image
+            src={background}
+            alt=""
+            widths={[1280, 1920, 2560]}
+            sizes="100vw"
+            loading="eager"
+          />
+        </div>
+      ) : null
+    }
+    <div class="paper">
+    <a class="skip-link" href="#main">跳到正文</a>
+    <header class="site-header">
+      <a class="brand" href="/">{site.name}</a>
+      <nav class="site-nav" aria-label="主导航">
+        {
+          site.nav.map((item) => (
+            <a href={item.href} aria-current={isActive(item.href) ? 'page' : undefined}>
+              {item.label}
+            </a>
+          ))
+        }
       </nav>
       <ThemeToggle />
     </header>
     <main id="main">
       <slot />
     </main>
-    <footer>
+    <footer class="site-footer">
       <p>© {new Date().getFullYear()} {site.name}</p>
       {
         site.social.length > 0 ? (
@@ -174,5 +187,161 @@ const themeConfigJson = JSON.stringify(themeConfig).replace(/</g, '\\u003c');
         ) : null
       }
     </footer>
+    </div>
   </body>
 </html>
+
+<style>
+  .site-bg {
+    inset: 0;
+    overflow: hidden;
+    position: fixed;
+    z-index: 0;
+  }
+
+  .site-bg img {
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+    width: 100%;
+  }
+
+  .paper {
+    background-color: var(--color-bg);
+    background-color: color-mix(in srgb, var(--color-bg) 86%, transparent);
+    -webkit-backdrop-filter: blur(14px);
+    backdrop-filter: blur(14px);
+    border: 1px solid var(--color-border);
+    display: grid;
+    grid-template-rows: auto 1fr auto;
+    margin: 1.25rem auto;
+    max-width: var(--page-max);
+    min-height: calc(100vh - 2.5rem);
+    min-height: calc(100dvh - 2.5rem);
+    position: relative;
+    width: calc(100% - 2rem);
+    z-index: 1;
+  }
+
+  .skip-link {
+    background-color: var(--color-bg);
+    border: 1px solid var(--color-border);
+    left: -9999px;
+    padding: var(--space-2) var(--space-3);
+    position: absolute;
+    top: 0;
+    z-index: 10;
+  }
+
+  .skip-link:focus {
+    left: var(--space-4);
+    top: var(--space-4);
+  }
+
+  .site-header {
+    align-items: baseline;
+    border-bottom: 1px solid var(--color-border);
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2) var(--space-4);
+    padding: var(--space-5) var(--space-5) var(--space-4);
+    width: 100%;
+  }
+
+  .brand {
+    color: var(--color-fg);
+    font-size: 0.95rem;
+    letter-spacing: 0.14em;
+    text-decoration: none;
+    white-space: nowrap;
+  }
+
+  .site-nav {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-4);
+    margin-left: auto;
+  }
+
+  .site-nav a {
+    color: var(--color-fg-muted);
+    font-family: var(--font-sans);
+    font-size: 0.8rem;
+    letter-spacing: 0.1em;
+    text-decoration: none;
+  }
+
+  .site-nav a:hover,
+  .site-nav a[aria-current='page'] {
+    color: var(--color-fg);
+    text-decoration: none;
+  }
+
+  main {
+    margin: 0 auto;
+    max-width: var(--measure);
+    padding: var(--space-7) var(--space-5) var(--space-8);
+    width: 100%;
+  }
+
+  .site-footer {
+    align-items: center;
+    border-top: 1px solid var(--color-border);
+    color: var(--color-fg-muted);
+    display: flex;
+    flex-wrap: wrap;
+    font-family: var(--font-sans);
+    font-size: var(--text-xs);
+    gap: var(--space-3) var(--space-5);
+    justify-content: space-between;
+    margin: 0;
+    padding: var(--space-5);
+    width: 100%;
+  }
+
+  .site-footer p {
+    margin: 0;
+  }
+
+  .site-footer ul {
+    display: flex;
+    gap: var(--space-4);
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .site-footer a {
+    color: var(--color-fg-muted);
+  }
+
+  .site-footer a:hover {
+    color: var(--color-fg);
+  }
+
+  @media (max-width: 640px) {
+    .paper {
+      border-left: none;
+      border-right: none;
+      margin: 0;
+      min-height: 100vh;
+      min-height: 100dvh;
+      width: 100%;
+    }
+
+    .site-header {
+      padding-bottom: var(--space-3);
+    }
+
+    .site-nav {
+      gap: var(--space-3);
+      margin-left: 0;
+      order: 3;
+      width: 100%;
+    }
+
+    main {
+      padding-top: var(--space-5);
+    }
+  }
+</style>

@@ -30,7 +30,37 @@ const { name, posts } = Astro.props;
   description={`标签 ${tagLabel(name)} 下的全部文章`}
 >
   <h1>{tagLabel(name)}</h1>
-  <p>共 {posts.length} 篇</p>
+  <p class="count">共 {posts.length} 篇</p>
   <PostList posts={posts} />
-  <p><a href="/">← 返回首页</a></p>
+  <p class="back"><a href="/">← 返回首页</a></p>
 </BaseLayout>
+
+<style>
+  h1 {
+    margin-bottom: var(--space-2);
+  }
+
+  .count {
+    color: var(--color-fg-muted);
+    font-family: var(--font-sans);
+    font-size: var(--text-xs);
+    letter-spacing: 0.05em;
+    margin: 0 0 var(--space-4);
+  }
+
+  .back {
+    border-top: 1px solid var(--color-border);
+    font-family: var(--font-sans);
+    font-size: var(--text-sm);
+    margin-top: var(--space-6);
+    padding-top: var(--space-4);
+  }
+
+  .back a {
+    text-decoration: none;
+  }
+
+  .back a:hover {
+    text-decoration: underline;
+  }
+</style>

@@ -10,8 +10,25 @@ interface Props {
 const { slug, mode = 'increment' } = Astro.props;
 ---
 
-<span data-views data-slug={slug} data-provider={viewsProviderId} data-mode={mode}>
-  阅读 <span data-views-count>—</span>
+<span class="views" data-views data-slug={slug} data-provider={viewsProviderId} data-mode={mode}>
+  <span class="visually-hidden">阅读</span>
+  <svg
+    class="views-icon"
+    viewBox="0 0 24 24"
+    width="15"
+    height="15"
+    fill="none"
+    stroke="currentColor"
+    stroke-width="1.7"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+    aria-hidden="true"
+    focusable="false"
+  >
+    <path d="M2 12s3.6-6.5 10-6.5S22 12 22 12s-3.6 6.5-10 6.5S2 12 2 12Z" />
+    <circle cx="12" cy="12" r="2.6" />
+  </svg>
+  <span data-views-count>—</span>
 </span>
 
 <script>
@@ -25,8 +42,7 @@ const { slug, mode = 'increment' } = Astro.props;
 
     const provider = resolveViewsProvider(node.dataset.provider ?? 'local');
     const target = node.querySelector<HTMLElement>('[data-views-count]');
-    const action =
-      node.dataset.mode === 'read' ? provider.get(slug) : provider.increment(slug);
+    const action = node.dataset.mode === 'read' ? provider.get(slug) : provider.increment(slug);
 
     action
       .then((count) => {
@@ -37,3 +53,25 @@ const { slug, mode = 'increment' } = Astro.props;
       });
   }
 </script>
+
+<style>
+  .views {
+    align-items: center;
+    display: inline-flex;
+    gap: 0.26em;
+    vertical-align: -0.1em;
+  }
+
+  .views-icon {
+    opacity: 0.8;
+  }
+
+  .visually-hidden {
+    clip-path: inset(50%);
+    height: 1px;
+    overflow: hidden;
+    position: absolute;
+    white-space: nowrap;
+    width: 1px;
+  }
+</style>

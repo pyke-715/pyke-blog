@@ -13,7 +13,7 @@ interface Props {
 const { posts, showViews = false } = Astro.props;
 ---
 
-<ul>
+<ul class="post-list">
   {
     posts.map((post) => (
       <li>
@@ -21,7 +21,7 @@ const { posts, showViews = false } = Astro.props;
           <h2>
             <a href={postHref(post)}>{post.data.title}</a>
           </h2>
-          <p>
+          <p class="post-meta">
             <time datetime={toISODate(post.data.pubDate)}>{formatDate(post.data.pubDate)}</time>
             {' · '}
             <span>{post.data.category}</span>
@@ -39,9 +39,67 @@ const { posts, showViews = false } = Astro.props;
               </Fragment>
             ) : null}
           </p>
-          {post.data.description ? <p>{post.data.description}</p> : null}
+          {post.data.description ? <p class="post-desc">{post.data.description}</p> : null}
         </article>
       </li>
     ))
   }
 </ul>
+
+<style>
+  .post-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  article {
+    border-top: 1px solid var(--color-border);
+    padding: var(--space-6) 0;
+  }
+
+  li:first-child article {
+    border-top: none;
+    padding-top: var(--space-4);
+  }
+
+  h2 {
+    font-size: clamp(1.35rem, 1.15rem + 0.9vw, 1.75rem);
+    letter-spacing: -0.01em;
+    line-height: 1.3;
+    margin: 0 0 var(--space-2);
+  }
+
+  h2 a {
+    color: var(--color-fg);
+    text-decoration: none;
+  }
+
+  h2 a:hover {
+    color: var(--color-accent);
+  }
+
+  .post-meta {
+    color: var(--color-fg-muted);
+    font-family: var(--font-sans);
+    font-size: var(--text-xs);
+    letter-spacing: 0.05em;
+    margin: 0 0 var(--space-3);
+  }
+
+  .post-meta a {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  .post-meta a:hover {
+    color: var(--color-accent);
+  }
+
+  .post-desc {
+    font-size: 1rem;
+    line-height: var(--leading-loose);
+    margin: 0;
+    opacity: 0.78;
+  }
+</style>
